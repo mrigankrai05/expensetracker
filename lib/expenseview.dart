@@ -25,11 +25,10 @@ class _ExpenseviewState extends State<Expenseview> {
     for (Expensemodel i in expense) {
       if (i.category.name == "Credit") {
         totalcredit += i.amount;
-      } 
-      else {
+      } else {
         totaldebit += i.amount;
       }
-      amount =totalcredit - totaldebit;
+      amount = totalcredit - totaldebit;
     }
     return [amount, totalcredit, totaldebit];
   }
@@ -77,13 +76,14 @@ class _ExpenseviewState extends State<Expenseview> {
   void adddata() {
     if (title.isNotEmpty && amount > 0) {
       setState(() {
-        expense.insert(0,
-        Expensemodel(
+        expense.insert(
+          0,
+          Expensemodel(
               title: title.toUpperCase(),
               amount: amount,
               date: DateTime.now(),
               category:
-              category == "Credit" ? Category.Credit : Category.Debit),
+                  category == "Credit" ? Category.Credit : Category.Debit),
         );
         totalamount = totalsum()[0];
         totalcredit = totalsum()[1];
@@ -121,6 +121,7 @@ class _ExpenseviewState extends State<Expenseview> {
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setState) {
             return Scaffold(
+              backgroundColor: const Color.fromARGB(255, 186, 153, 153),
               body: Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Column(
@@ -210,7 +211,9 @@ class _ExpenseviewState extends State<Expenseview> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color.fromARGB(255, 185, 166, 166),
       appBar: AppBar(
+        backgroundColor: const Color.fromARGB(255, 161, 148, 172),
         title: Text(
           "Expense Tracker",
           textAlign: TextAlign.center,
@@ -225,52 +228,63 @@ class _ExpenseviewState extends State<Expenseview> {
       floatingActionButton: FloatingActionButton(
         onPressed: _adddialog,
         backgroundColor: const Color.fromARGB(255, 114, 156, 210),
-        child: Icon(Icons.add),
+        child: Icon(Icons.add, size: 30.0),
         tooltip: "Add Expense",
+        shape: CircleBorder(),
       ),
-      body: Column(
-        crossAxisAlignment:
-            CrossAxisAlignment.stretch, 
-        children: [
-          Column(
-            children: [
-              SizedBox(height: 10.0), 
-              Text(
-                "NET BALANCE: ₹$totalamount",
+      body: expense.isEmpty
+          ? Center(
+              child: Text(
+                "ADD EXPENSE TO START",
+                textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 20.0,
                   fontWeight: FontWeight.w600,
                   color: Colors.black87,
                 ),
               ),
-              SizedBox(height: 10.0), 
-              Text(
-                "TOTAL CREDIT: ₹$totalcredit",
-                style: TextStyle(
-                  fontSize: 20.0,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black87,
+            )
+          : Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                SizedBox(height: 10.0),
+                Text(
+                  "NET BALANCE: ₹$totalamount",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 20.0,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black87,
+                  ),
                 ),
-              ),
-              SizedBox(height: 10.0), 
-              Text(
-                "TOTAL DEBIT: ₹$totaldebit",
-                style: TextStyle(
-                  fontSize: 20.0,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black87,
+                SizedBox(height: 10.0),
+                Text(
+                  "TOTAL CREDIT: ₹$totalcredit",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 20.0,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black87,
+                  ),
                 ),
-              ),
-            ],
-          ),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Expenselist(expense, deletedata),
+                SizedBox(height: 10.0),
+                Text(
+                  "TOTAL DEBIT: ₹$totaldebit",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 20.0,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black87,
+                  ),
+                ),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Expenselist(expense, deletedata),
+                  ),
+                ),
+              ],
             ),
-          ),
-        ],
-      ),
     );
   }
 }
