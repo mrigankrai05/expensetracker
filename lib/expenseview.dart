@@ -107,33 +107,44 @@ class _ExpenseviewState extends State<Expenseview> {
             padding: const EdgeInsets.all(8.0),
             child: Column(
               children: [
+                Text(
+                  "ADD NEW EXPENSE",
+                  style: TextStyle(fontSize: 30.0),
+                  textAlign: TextAlign.center,
+                ),
+                SizedBox(height: 10.0),
                 TextField(
-                    keyboardType: TextInputType.text,
-                    decoration: InputDecoration(
-                      labelText: "Enter Title",
-                      hintText: "Enter the title of the expense",
-                    ),
-                    onChanged: (value) {
-                      title = value;
-                    }),
-                Row(
-                  children: [
-                    Expanded(
-                      child: TextField(
-                          keyboardType: TextInputType.number,
-                          decoration: InputDecoration(
-                            labelText: "Enter Amount",
-                            hintText: "Enter the amount of the expense",
-                          ),
-                          onChanged: (value) {
-                            amount = double.parse(value);
-                          }),
-                    ),
-                    SizedBox(width: 10),
-                  ],
+                  keyboardType: TextInputType.text,
+                  decoration: InputDecoration(
+                    labelText: "Enter Title",
+                    hintText: "Enter the title of the expense",
+                  ),
+                  onChanged: (value) {
+                    title = value;
+                  },
+                ),
+                SizedBox(height: 10.0),
+                TextField(
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(
+                      labelText: "Enter Amount", prefixText: "₹ "),
+                  onChanged: (value) {
+                    amount = double.parse(value);
+                  },
                 ),
                 SizedBox(height: 30.0),
-                ElevatedButton(onPressed: adddata, child: Text("SUBMIT"))
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    ElevatedButton(onPressed: adddata, child: Text("SUBMIT")),
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.of(ctx).pop();
+                      },
+                      child: Text("CANCEL"),
+                    ),
+                  ],
+                )
               ],
             ),
           ),
@@ -149,30 +160,43 @@ class _ExpenseviewState extends State<Expenseview> {
         title: Text(
           "Expense Tracker",
           textAlign: TextAlign.center,
-          style:
-              TextStyle(fontSize: 30.0, decoration: TextDecoration.underline),
-        ),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.add),
-            onPressed: _adddialog,
-            iconSize: 40.0,
-            color: Colors.blue,
+          style: TextStyle(
+            fontSize: 30.0,
+            fontWeight: FontWeight.bold,
+            color: const Color.fromARGB(255, 19, 12, 20),
+            decoration: TextDecoration.underline,
           ),
-        ],
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _adddialog,
+        backgroundColor: const Color.fromARGB(255, 114, 156, 210),
+        child: Icon(Icons.add),
+        tooltip: "Add Expense",
       ),
       body: Column(
+        crossAxisAlignment:
+            CrossAxisAlignment.stretch, // Stretch to fill the width
         children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Container(
-              alignment: Alignment.center,
-              height: 130.0,
-              child: Text("TOTAL EXPENSES :- $totalamount",
-                  style: TextStyle(fontSize: 25.0)),
+          Column(
+            children: [
+              SizedBox(height: 10.0), // Add spacing between elements
+              Text(
+                "TOTAL EXPENSES: ₹$totalamount",
+                style: TextStyle(
+                  fontSize: 22.0,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black87,
+                ),
+              ),
+            ],
+          ),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Expenselist(expense, deletedata),
             ),
           ),
-          Expanded(child: Expenselist(expense, deletedata)),
         ],
       ),
     );
