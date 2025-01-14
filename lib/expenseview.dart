@@ -14,12 +14,24 @@ class _ExpenseviewState extends State<Expenseview> {
   double amount = 0;
   DateTime? date;
   double totalamount = 0;
-  double totalsum() {
+  String category = "Credit";
+  double totalcredit = 0;
+  double totaldebit = 0;
+
+  List<double> totalsum() {
     amount = 0;
+    totalcredit = 0;
+    totaldebit = 0;
     for (Expensemodel i in expense) {
-      amount += i.amount;
+      if (i.category.name == "Credit") {
+        totalcredit += i.amount;
+      } 
+      else {
+        totaldebit += i.amount;
+      }
+      amount =totalcredit - totaldebit;
     }
-    return amount;
+    return [amount, totalcredit, totaldebit];
   }
 
   void deletedata(Expensemodel a) {
@@ -40,7 +52,9 @@ class _ExpenseviewState extends State<Expenseview> {
                   onPressed: () {
                     setState(() {
                       expense.remove(a);
-                      totalamount = totalsum();
+                      totalamount = totalsum()[0];
+                      totalcredit = totalsum()[1];
+                      totaldebit = totalsum()[2];
                     });
                     Navigator.of(ctx).pop();
                   },
@@ -63,15 +77,17 @@ class _ExpenseviewState extends State<Expenseview> {
   void adddata() {
     if (title.isNotEmpty && amount > 0) {
       setState(() {
-        expense.insert(
-          0,
-          Expensemodel(
-            title: title.toUpperCase(),
-            amount: amount,
-            date: DateTime.now(),
-          ),
+        expense.insert(0,
+        Expensemodel(
+              title: title.toUpperCase(),
+              amount: amount,
+              date: DateTime.now(),
+              category:
+              category == "Credit" ? Category.Credit : Category.Debit),
         );
-        totalamount = totalsum();
+        totalamount = totalsum()[0];
+        totalcredit = totalsum()[1];
+        totaldebit = totalsum()[2];
       });
       title = "";
       amount = 0;
@@ -102,52 +118,90 @@ class _ExpenseviewState extends State<Expenseview> {
     showDialog(
       context: context,
       builder: (ctx) {
-        return Scaffold(
-          body: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              children: [
-                Text(
-                  "ADD NEW EXPENSE",
-                  style: TextStyle(fontSize: 30.0),
-                  textAlign: TextAlign.center,
-                ),
-                SizedBox(height: 10.0),
-                TextField(
-                  keyboardType: TextInputType.text,
-                  decoration: InputDecoration(
-                    labelText: "Enter Title",
-                    hintText: "Enter the title of the expense",
-                  ),
-                  onChanged: (value) {
-                    title = value;
-                  },
-                ),
-                SizedBox(height: 10.0),
-                TextField(
-                  keyboardType: TextInputType.number,
-                  decoration: InputDecoration(
-                      labelText: "Enter Amount", prefixText: "₹ "),
-                  onChanged: (value) {
-                    amount = double.parse(value);
-                  },
-                ),
-                SizedBox(height: 30.0),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return Scaffold(
+              body: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
                   children: [
-                    ElevatedButton(onPressed: adddata, child: Text("SUBMIT")),
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.of(ctx).pop();
-                      },
-                      child: Text("CANCEL"),
+                    Text(
+                      "ADD NEW EXPENSE",
+                      style: TextStyle(fontSize: 30.0),
+                      textAlign: TextAlign.center,
                     ),
+                    SizedBox(height: 10.0),
+                    TextField(
+                      keyboardType: TextInputType.text,
+                      decoration: InputDecoration(
+                        labelText: "Enter Title",
+                        hintText: "Enter the title of the expense",
+                      ),
+                      onChanged: (value) {
+                        title = value;
+                      },
+                    ),
+                    SizedBox(height: 10.0),
+                    TextField(
+                      keyboardType: TextInputType.number,
+                      decoration: InputDecoration(
+                          labelText: "Enter Amount", prefixText: "₹ "),
+                      onChanged: (value) {
+                        amount = double.parse(value);
+                      },
+                    ),
+                    SizedBox(height: 10.0),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          "Select Category",
+                          style:
+                              TextStyle(fontSize: 20.0, color: Colors.black87),
+                        ),
+                        SizedBox(width: 10.0),
+                        DropdownButton(
+                          value: category,
+                          icon: Icon(Icons.keyboard_arrow_down),
+                          items: [
+                            DropdownMenuItem(
+                              child: Text("Credit"),
+                              value: "Credit",
+                            ),
+                            DropdownMenuItem(
+                              child: Text("Debit"),
+                              value: "Debit",
+                            )
+                          ],
+                          onChanged: (value) {
+                            setState(
+                              () {
+                                category = value!;
+                              },
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 30.0),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        ElevatedButton(
+                            onPressed: adddata, child: Text("SUBMIT")),
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.of(ctx).pop();
+                          },
+                          child: Text("CANCEL"),
+                        ),
+                      ],
+                    )
                   ],
-                )
-              ],
-            ),
-          ),
+                ),
+              ),
+            );
+          },
         );
       },
     );
@@ -176,15 +230,33 @@ class _ExpenseviewState extends State<Expenseview> {
       ),
       body: Column(
         crossAxisAlignment:
-            CrossAxisAlignment.stretch, // Stretch to fill the width
+            CrossAxisAlignment.stretch, 
         children: [
           Column(
             children: [
-              SizedBox(height: 10.0), // Add spacing between elements
+              SizedBox(height: 10.0), 
               Text(
-                "TOTAL EXPENSES: ₹$totalamount",
+                "NET BALANCE: ₹$totalamount",
                 style: TextStyle(
-                  fontSize: 22.0,
+                  fontSize: 20.0,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black87,
+                ),
+              ),
+              SizedBox(height: 10.0), 
+              Text(
+                "TOTAL CREDIT: ₹$totalcredit",
+                style: TextStyle(
+                  fontSize: 20.0,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black87,
+                ),
+              ),
+              SizedBox(height: 10.0), 
+              Text(
+                "TOTAL DEBIT: ₹$totaldebit",
+                style: TextStyle(
+                  fontSize: 20.0,
                   fontWeight: FontWeight.w600,
                   color: Colors.black87,
                 ),

@@ -11,19 +11,25 @@ class Expenselist extends StatelessWidget {
     return ListView.builder(
       itemCount: expense.length,
       itemBuilder: (ctx, index) => Card(
-        color: const Color.fromARGB(255, 213, 209, 209),
+        color: expense[index].category.name == "Credit"? const Color.fromARGB(255, 125, 210, 128) : const Color.fromARGB(255, 253, 99, 88),
         margin: EdgeInsets.all(8),
         child: Column(
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(8.0, 8.0, 8.0, 2.0),
-                  child: Text(
-                    "AMOUNT :- ${expense[index].amount}",
-                    style: TextStyle(fontSize: 18.0),
-                  ),
+                Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(8.0, 8.0, 8.0, 2.0),
+                      child: Text(
+                        "AMOUNT :- ${expense[index].amount}",
+                        style: TextStyle(fontSize: 18.0),
+                      ),
+                    ),
+                    Text("${expense[index].category.name}",
+                        style: TextStyle(fontSize: 18.0)),
+                  ],
                 ),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
