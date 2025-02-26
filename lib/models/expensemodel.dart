@@ -1,10 +1,5 @@
 import 'package:uuid/uuid.dart';
 
-enum Category {
-  Credit,
-  Debit
-}
-
 class Expensemodel {
   Expensemodel(
     {
@@ -18,5 +13,5 @@ class Expensemodel {
   final String title;
   final double amount;
   final DateTime date;
-  final Category category;
+  final String category;
 }

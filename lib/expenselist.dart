@@ -11,7 +11,7 @@ class Expenselist extends StatelessWidget {
     return ListView.builder(
       itemCount: expense.length,
       itemBuilder: (ctx, index) => Card(
-        color: expense[index].category.name == "Credit"? const Color.fromARGB(255, 125, 210, 128) : const Color.fromARGB(255, 253, 99, 88),
+        color: expense[index].category== "Credit"? const Color.fromARGB(255, 125, 210, 128) : const Color.fromARGB(255, 253, 99, 88),
         margin: EdgeInsets.all(8),
         child: Column(
           children: [
@@ -27,7 +27,7 @@ class Expenselist extends StatelessWidget {
                         style: TextStyle(fontSize: 18.0),
                       ),
                     ),
-                    Text("${expense[index].category.name}",
+                    Text(expense[index].category,
                         style: TextStyle(fontSize: 18.0)),
                   ],
                 ),
@@ -46,7 +46,7 @@ class Expenselist extends StatelessWidget {
                       child: Text(
                           DateFormat('dd-MM-yyy – kk:mm')
                               .format(expense[index].date),
-                          style: TextStyle(fontSize: 15.0)),
+                          style: TextStyle(fontSize: 12.0)),
                     )
                   ],
                 )

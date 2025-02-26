@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import './models/expensemodel.dart';
 import './expenselist.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class Expenseview extends StatefulWidget {
   const Expenseview({super.key});
@@ -9,7 +11,7 @@ class Expenseview extends StatefulWidget {
 }
 
 class _ExpenseviewState extends State<Expenseview> {
-  final List<Expensemodel> expense = [];
+  List<Expensemodel> expense = [];
   String title = "";
   double amount = 0;
   DateTime? date;
@@ -18,12 +20,40 @@ class _ExpenseviewState extends State<Expenseview> {
   double totalcredit = 0;
   double totaldebit = 0;
 
+  void initState() {
+    super.initState();
+    fetchdata();
+  }
+
+  void fetchdata() async {
+    final url = Uri.parse(
+        'https://expense-tracker-60827-default-rtdb.firebaseio.com/expense.json');
+    final response = await http.get(url);
+    final Map<String, dynamic> data = json.decode(response.body);
+    final List<Expensemodel> dummydata = [];
+    for (final item in data.entries) {
+      dummydata.add(
+        Expensemodel(
+          title: item.value["title"],
+          amount: item.value["amount"],
+          date: DateTime.parse(item.value["date"]),
+          category: item.value["category"],
+        ),
+      );
+    }
+    setState(
+      () {
+        expense = dummydata;
+      },
+    );
+  }
+
   List<double> totalsum() {
     amount = 0;
     totalcredit = 0;
     totaldebit = 0;
     for (Expensemodel i in expense) {
-      if (i.category.name == "Credit") {
+      if (i.category == "Credit") {
         totalcredit += i.amount;
       } else {
         totaldebit += i.amount;
@@ -73,22 +103,32 @@ class _ExpenseviewState extends State<Expenseview> {
     );
   }
 
-  void adddata() {
+  void adddata() async {
     if (title.isNotEmpty && amount > 0) {
-      setState(() {
-        expense.insert(
-          0,
-          Expensemodel(
-              title: title.toUpperCase(),
-              amount: amount,
-              date: DateTime.now(),
-              category:
-                  category == "Credit" ? Category.Credit : Category.Debit),
-        );
-        totalamount = totalsum()[0];
-        totalcredit = totalsum()[1];
-        totaldebit = totalsum()[2];
-      });
+      final url = Uri.parse(
+          'https://expense-tracker-60827-default-rtdb.firebaseio.com/expense.json');
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: json.encode(
+          {
+            "title": title.toUpperCase(),
+            "amount": amount,
+            "date": DateTime.now().toIso8601String(),
+            "category": category == "Credit" ? "Credit" : "Debit"
+          },
+        ),
+      );
+      fetchdata();
+      setState(
+        () {
+          totalamount = totalsum()[0];
+          totalcredit = totalsum()[1];
+          totaldebit = totalsum()[2];
+        },
+      );
       title = "";
       amount = 0;
       Navigator.of(context).pop();
@@ -113,8 +153,8 @@ class _ExpenseviewState extends State<Expenseview> {
       amount = 0;
     }
   }
-
   void _adddialog() {
+
     showDialog(
       context: context,
       builder: (ctx) {
@@ -166,12 +206,12 @@ class _ExpenseviewState extends State<Expenseview> {
                           icon: Icon(Icons.keyboard_arrow_down),
                           items: [
                             DropdownMenuItem(
-                              child: Text("Credit"),
                               value: "Credit",
+                              child: Text("Credit"),
                             ),
                             DropdownMenuItem(
-                              child: Text("Debit"),
                               value: "Debit",
+                              child: Text("Debit"),
                             )
                           ],
                           onChanged: (value) {
@@ -228,9 +268,9 @@ class _ExpenseviewState extends State<Expenseview> {
       floatingActionButton: FloatingActionButton(
         onPressed: _adddialog,
         backgroundColor: const Color.fromARGB(255, 114, 156, 210),
-        child: Icon(Icons.add, size: 30.0),
         tooltip: "Add Expense",
         shape: CircleBorder(),
+        child: Icon(Icons.add, size: 30.0),
       ),
       body: expense.isEmpty
           ? Center(
